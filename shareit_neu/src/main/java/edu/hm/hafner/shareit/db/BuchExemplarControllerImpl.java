@@ -10,8 +10,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import edu.hm.hafner.shareit.model.Benutzer;
-import edu.hm.hafner.shareit.model.BuchBeschreibung;
 import edu.hm.hafner.shareit.model.BuchExemplar;
 import edu.hm.hafner.shareit.util.DatabaseFactory;
 
@@ -36,7 +34,9 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
     /** ID des Buches */
     private static final String ID = "id";
     
-    private static final String ENTLIEHEN = "entliehen";
+    private static final String ZURUECKGEFORDERT = "gefordert";
+    private static final String JA = "ja";
+    private static final String NEIN = "nein";
     
     /**
      * Liefert alle Buchexemplare
@@ -47,7 +47,9 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         return DatabaseFactory.INSTANCE.getDatabase().getCollection("buchexemplare");
     }
     
-    @Override
+    
+    /*
+     * @Override
     public BuchExemplar create(final BuchBeschreibung beschreibung, final Benutzer leiher, final int id) {
         
         // Benutzer-Objekt für den Besitzer des Buchexemplars
@@ -92,7 +94,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         // Rückgabe des Buchexemplars, welches ausgeliehen wird
         return new BuchExemplar(beschreibung, owner, leiher, id);
     }
-    
+     */
     @Override
     public Collection<BuchExemplar> findBuchExemplare() {
         return asCollection(getBuchExemplareCollection().find());
@@ -136,11 +138,15 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
                 String beschreibung = (String)dbObject.get(BESCHREIBUNG);
                 String besitzer = (String)dbObject.get(BESITZER);
                 String leiher = (String)dbObject.get(LEIHER);
+                String zurueck = (String)dbObject.get(ZURUECKGEFORDERT);
                 
-                //int id = (Integer)dbObject.get(ID);
+                boolean gefordert=false;
+                if(zurueck.equals("ja")){
+                    gefordert = true;
+                }
                 
                 
-                buchExemplare.add(new BuchExemplar(beschreibung, besitzer, leiher));
+                buchExemplare.add(new BuchExemplar(beschreibung, besitzer, leiher, gefordert));
             }
             return buchExemplare;
         }
@@ -193,7 +199,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         buchExemplar.append(BESCHREIBUNG, isbn);
         buchExemplar.append(BESITZER, besitzerEmail);
         buchExemplar.append(LEIHER, null);
-        //buchExemplar.append(ENTLIEHEN, false);
+        buchExemplar.append(ZURUECKGEFORDERT, "nein");
         
         getBuchExemplareCollection().insert(buchExemplar);
         return new BuchExemplar(isbn, besitzerEmail, null);
@@ -211,13 +217,19 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
     }
     
     @Override
-    public BuchExemplar rentExemplar(final String isbn, final String besitzerEmail, final String leiherEmail) {
+    public BuchExemplar rentExemplar(final String isbn, final String besitzerEmail, final String leiherEmail, final String zurueck) {
         
         //neues Objekt
         BasicDBObject buchExemplar = new BasicDBObject();
         buchExemplar.append(BESCHREIBUNG, isbn);
         buchExemplar.append(BESITZER, besitzerEmail);
         buchExemplar.append(LEIHER, leiherEmail);
+        buchExemplar.append(ZURUECKGEFORDERT, zurueck);
+        
+        boolean gefordert=false;
+        if(zurueck.equals("ja")) {
+            gefordert=true;
+        }
         
         //zu ersetzendes
         BasicDBObject query = new BasicDBObject();
@@ -226,7 +238,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         
         
         getBuchExemplareCollection().update(query, buchExemplar);
-        return new BuchExemplar(isbn, besitzerEmail, leiherEmail);
+        return new BuchExemplar(isbn, besitzerEmail, leiherEmail, gefordert);
     }
     
     @Override

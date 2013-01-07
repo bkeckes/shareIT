@@ -16,13 +16,18 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         
         BuchExemplar exemplar = verwaltung.buchZurVerfuegungStellen("123", "Dan Brown", "Sakrileg", "keckes@hm.edu");
+        verifyBooks(verwaltung, 1);
         verwaltung.buchZurVerfuegungStellen("3213", "Dan Brown", "Illuminati", "keckes@hm.edu");
+        verifyBooks(verwaltung, 2);
         verwaltung.buchZurVerfuegungStellen("123", "Dan Brown", "Sakrileg", "keckes@hm.edu");
+        verifyBooks(verwaltung, 3);
         
         assertEquals("Falsche isbn", "123", verwaltung.getBuchBeschreibung(exemplar.getIsbn()).getIsbn());
         assertEquals("Falscher Titel", "Sakrileg", verwaltung.getBuchBeschreibung(exemplar.getIsbn()).getTitle());
         assertEquals("Falscher Autor", "Dan Brown", verwaltung.getBuchBeschreibung(exemplar.getIsbn()).getAuthor());
         assertEquals("Fehler beim Ausleiher", null, exemplar.getLeiherEmail());
+        
+        
         
     }
     
@@ -50,9 +55,25 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         
         zeigeBuecher();
     }
+    
+    @Test
+    public void testeBuchZurueckFordern(){
+        
+        testeBuchZurVerfuegungStellen();
+        
+        BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
+        BuchExemplar exemplar = verwaltung.buchZurueckfordern("123", "keckes@hm.edu");
+        
+        // zeigeBuecher();
+        
+    }
     private void zeigeBuecher(){
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         verwaltung.zeigeAlleBuecher();
+    }
+    
+    private void verifyBooks(final BuchVerwaltungUsecaseController verwaltung, final int expectedNumber){
+        assertEquals("Falsche Anzahl an Buechern", expectedNumber, verwaltung.buchZaehler());
     }
 }
 

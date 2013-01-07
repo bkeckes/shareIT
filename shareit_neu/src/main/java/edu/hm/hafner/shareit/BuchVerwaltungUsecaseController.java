@@ -35,8 +35,9 @@ public interface BuchVerwaltungUsecaseController {
      * @param ausleiher Leiher des Buchexemplars
      * @return das ausgeliehene Buchexemplar
      */
-    BuchExemplar buchAusleihen(BuchBeschreibung buchbeschreibung, int id, Benutzer ausleiher);
+    //BuchExemplar buchAusleihen(BuchBeschreibung buchbeschreibung, int id, Benutzer ausleiher);
     BuchExemplar buchAusleihen(String isbn, String leiher);
+    int buchZaehler();
     /**
      * Realisiert das Zurückgeben eines Buchexemplars.
      * 
@@ -54,6 +55,7 @@ public interface BuchVerwaltungUsecaseController {
      * @return Buchexemplar, welches zurückgefordert wird
      */
     BuchExemplar buchZurueckfordern(int id);
+    BuchExemplar buchZurueckfordern(String isbn, String besitzer);
     
     /**
      * Realisiert das Entfernen eines Buches aus dem System.

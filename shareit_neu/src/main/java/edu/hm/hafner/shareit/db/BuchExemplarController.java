@@ -2,8 +2,6 @@ package edu.hm.hafner.shareit.db;
 
 import java.util.Collection;
 
-import edu.hm.hafner.shareit.model.Benutzer;
-import edu.hm.hafner.shareit.model.BuchBeschreibung;
 import edu.hm.hafner.shareit.model.BuchExemplar;
 
 /**
@@ -21,10 +19,10 @@ public interface BuchExemplarController {
      * @param id ID des Buchexemplares
      * @return das neue Buchexemplar
      */
-    BuchExemplar create(BuchBeschreibung beschreibung, Benutzer leiher, int id);
+    //BuchExemplar create(BuchBeschreibung beschreibung, Benutzer leiher, int id);
     
     BuchExemplar createExemplar(String isbn, String besitzerEmail);
-    BuchExemplar rentExemplar(String isbn, String besitzerEmail, String leiherEmail);
+    BuchExemplar rentExemplar(String isbn, String besitzerEmail, String leiherEmail, String zurueck);
     BuchExemplar returnExemplar(String isbn, String leiherEmail);
     /**
      * Liefert alle Buchexemplare zurück.

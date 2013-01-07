@@ -33,10 +33,17 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
     public BuchExemplar buchZurVerfuegungStellen(final String isbn, final String author, final String title, final String emailBesitzer) {
         
         BuchBeschreibung besch;
+        
+        //Wenn Beschreibung noch nicht vorhanden...
         if(beschreibungController.findByISBN(isbn).isEmpty()){
+            
+            //Beschreibung erstellen
             besch = beschreibungController.createBeschreibung(isbn, title, author);
         }
+        //Wenn Beschreibung vorhanden
         else{
+            
+            //bestehende Beschreibung verwenden
             besch = beschreibungController.findByISBN(isbn).iterator().next();
         }
         
@@ -49,15 +56,16 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         while(iter.hasNext()){
             BuchExemplar b = (BuchExemplar)iter.next();
             BuchBeschreibung besch = beschreibungController.findByISBN(b.getIsbn()).iterator().next();
-            System.out.println("Buch: "+besch.getTitle()+", "+besch.getAuthor()+" gehört zu: "+b.getBesitzerEmail()+" ausgeliehen von: "+b.getLeiherEmail());
+            System.out.println("Buch: "+besch.getTitle()+", "+besch.getAuthor()+" gehört zu: "+b.getBesitzerEmail()+" ausgeliehen von: "+b.getLeiherEmail()+", gefordert: "+b.getZurueckGefordert());
         }
         
     }
+    /*
     @Override
     public BuchExemplar buchAusleihen(final BuchBeschreibung buchbeschreibung, final int id, final Benutzer ausleiher) {
         return buchexemplarController.create(buchbeschreibung, ausleiher, id);
     }
-    
+     */
     @Override
     public boolean buchZurueckgeben(final int id) {
         
@@ -150,13 +158,31 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         }
         
         
-        return buchexemplarController.rentExemplar(isbn, buch.getBesitzerEmail(), leiher);
+        return buchexemplarController.rentExemplar(isbn, buch.getBesitzerEmail(), leiher, "nein");
     }
     @Override
     public BuchExemplar buchZurueckGeben(final String isbn, final String emailLeiher) {
         
         return buchexemplarController.returnExemplar(isbn, emailLeiher);
     }
+    @Override
+    public int buchZaehler() {
+        
+        Iterator iter = buchexemplarController.getAllBooks().iterator();
+        int i=0;
+        while(iter.hasNext()){
+            iter.next();
+            i++;
+        }
+        return i;
+    }
+    @Override
+    public BuchExemplar buchZurueckfordern(final String isbn, final String besitzer) {
+        
+        
+        return buchexemplarController.rentExemplar(isbn, besitzer, null, "nein");
+    }
+    
     
 }
 

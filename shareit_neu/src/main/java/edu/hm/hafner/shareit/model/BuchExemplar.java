@@ -26,9 +26,10 @@ public class BuchExemplar {
     /** Repräsentiert die Zurückforderungs-Markierung des Buchexemplar-Besitzers */
     private boolean isZurueckgefordert = false;
     
-    private String emailBesitzer;
-    private String emailLeiher;
-    private String beschreibungIsbn;
+    private final String emailBesitzer;
+    private final String emailLeiher;
+    private final String beschreibungIsbn;
+    private final boolean zurueckGefordert;
     
     /**
      * Konstruktor, erzeugt ein neues Buchexemplar.
@@ -38,23 +39,39 @@ public class BuchExemplar {
      * @param leiher aktueller Leiher des Buchexemplars
      * @param id ID des Buchexemplars
      */
+    /*
     public BuchExemplar(final BuchBeschreibung beschreibung, final Benutzer besitzer, final Benutzer leiher, final int id) {
         this.beschreibung = beschreibung;
         this.besitzer = besitzer;
         this.leiher = leiher;
         this.id = id;
     }
-    
+     */
     public BuchExemplar(final String beschreibung, final String emailBesitzer, final String emailLeiher){
         beschreibungIsbn = beschreibung;
         this.emailBesitzer = emailBesitzer;
         this.emailLeiher = emailLeiher;
+        zurueckGefordert = false;
+        
         besitzer=null;
         id = 0;
         leiher = null;
         this.beschreibung=null;
     }
-    
+    public BuchExemplar(final String beschreibung, final String emailBesitzer, final String emailLeiher, final boolean zurueck){
+        beschreibungIsbn = beschreibung;
+        this.emailBesitzer = emailBesitzer;
+        this.emailLeiher = emailLeiher;
+        zurueckGefordert = zurueck;
+        
+        besitzer=null;
+        id = 0;
+        leiher = null;
+        this.beschreibung=null;
+    }
+    public boolean getZurueckGefordert(){
+        return zurueckGefordert;
+    }
     public String getIsbn(){
         return beschreibungIsbn;
     }
