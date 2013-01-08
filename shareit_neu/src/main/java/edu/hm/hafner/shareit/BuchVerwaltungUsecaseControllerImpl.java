@@ -87,7 +87,7 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
             }
         }
         catch(NoSuchElementException e){
-            System.out.println("Buch kann nicht ausgeliehen werden.");
+            //System.out.println("Buch kann nicht ausgeliehen werden.");
             e.printStackTrace();
             return new BuchExemplar(null, null, null, false);
         }
@@ -138,6 +138,11 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         
         //Wenn das Buch nicht verliehen ist wird es gelöscht.
         buchexemplarController.delete(isbn, besitzer);
+        
+        //Wenn kein Exemplar von einem Buch mehr übrig ist, dann kann auch die Beschreibung gelöscht werden
+        if(buchexemplarController.findByIsbn(isbn).isEmpty()){
+            beschreibungController.deleteBeschreibung(isbn);
+        }
     }
     
     /**
@@ -312,6 +317,8 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         }
         
     }
+    
+    
     
 }
 

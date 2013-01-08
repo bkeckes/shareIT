@@ -95,6 +95,7 @@ public interface BuchVerwaltungUsecaseController {
      */
     BuchBeschreibung getBuchBeschreibung(String isbn);
     
+    
     /**
      * Gibt die Anzahl aller Bücher im System aus
      * 

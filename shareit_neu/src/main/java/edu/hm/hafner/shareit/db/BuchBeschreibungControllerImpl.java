@@ -150,6 +150,21 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
     }
     
     /**
+     * 
+     * löscht eine Buchbeschreibung
+     * @param isbn
+     * 
+     */
+    @Override
+    public void deleteBeschreibung(final String isbn) {
+        DBCursor cursor = queryForIsbn(isbn);
+        if(!cursor.hasNext()){
+            throw new IllegalStateException("Buchbeschreibung kann nicht gelöscht werden");
+        }
+        getBuchBeschreibungenCollection().remove(cursor.next());
+    }
+    
+    /**
      * Gibt eine Datenbank-Collection mit den Buchbeschreibungen,
      * welche zur übergebenen ISBN passen, zurück.
      * 

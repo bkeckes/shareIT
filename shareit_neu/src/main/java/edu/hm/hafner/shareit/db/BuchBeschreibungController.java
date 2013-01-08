@@ -44,5 +44,13 @@ public interface BuchBeschreibungController {
      * @return isbnCollection
      */
     Collection<String> findISBNByBuchBeschreibung(BuchBeschreibung beschreibung);
+    
+    /**
+     * 
+     * löscht eine Buchbeschreibung
+     * @param isbn
+     * @return buchbeschreibung
+     */
+    void deleteBeschreibung(String isbn);
 }
 

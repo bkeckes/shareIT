@@ -109,32 +109,40 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         
     }
     
+    /**
+     * Gibt Bücher über die ISBN zurück
+     * @param isbn
+     * @return collection
+     */
     @Override
     public Collection<BuchExemplar> findByIsbn(final String isbn) {
         Collection<BuchExemplar> collection = asCollection(queryForIsbn(isbn));
-        if(collection.isEmpty()) {
-            throw new NoSuchElementException("Zu der ISBN: "+isbn+" wurde nichts in der DB gefunden");
-        }
+        //        if(collection.isEmpty()) {
+        //            throw new NoSuchElementException("Zu der ISBN: "+isbn+" wurde nichts in der DB gefunden");
+        //        }
         return collection;
     }
     
-    
-    
-    
+    /**
+     * Löscht ein Buch
+     * 
+     * @param isbn
+     * @param besitzer
+     */
     @Override
     public void delete(final String isbn, final String besitzer) {
         
         //Betreffende Bücher werden geholt
         DBCursor cursor = queryForExemplarByBesitzer(isbn, besitzer);
         if(!cursor.hasNext()) {
-            System.out.println("Kein Buch mit dieser ISBN: "+isbn+" von "+besitzer+" gefunden");
+            //System.out.println("Kein Buch mit dieser ISBN: "+isbn+" von "+besitzer+" gefunden");
             throw new NoSuchElementException("Kein Buch mit dieser ISBN: "+isbn+" von "+besitzer+" gefunden");
         }
         
         //Betreffende Bücher die keinen Leiher haben werden geholt.
         cursor = queryForExemplarByBesitzerWithEmptyLeiher(isbn, besitzer);
         if(!cursor.hasNext()) {
-            System.out.println("Das Buch kann nicht geloscht werden da es im Moment ausgeliehen ist");
+            //System.out.println("Das Buch kann nicht geloscht werden da es im Moment ausgeliehen ist");
             throw new IllegalStateException("Das Buch kann nicht geloscht werden da es im Moment ausgeliehen ist");
         }
         
@@ -143,6 +151,13 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         
     }
     
+    /**
+     * Ein Exemplar wird zurück gegeben
+     * 
+     * @param isbn
+     * @param leiherEmail
+     * @return BuchExemplar
+     */
     @Override
     public BuchExemplar returnExemplar(final String isbn, final String leiherEmail) {
         
@@ -169,6 +184,14 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         return new BuchExemplar(isbn, besitzer, null, false);
     }
     
+    /**
+     * Ein Exemplar wird geliehen
+     * 
+     * @param isbn
+     * @param besitzerEmail
+     * @param leiherEmail
+     * @return BuchExemplar
+     */
     @Override
     public BuchExemplar rentExemplar(final String isbn, final String besitzerEmail, final String leiherEmail) {
         
@@ -190,6 +213,14 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         return new BuchExemplar(isbn, besitzerEmail, leiherEmail, false);
     }
     
+    /**
+     * Ein Exemplar wird zurück gefordert
+     * 
+     * @param isbn
+     * @param besitzer
+     * @param leiher
+     * @return BuchExemplar
+     */
     @Override
     public BuchExemplar reclaimExemplar(final String isbn, final String besitzer, final String leiher) {
         
@@ -212,13 +243,21 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         return new BuchExemplar(isbn, besitzer, leiher, true);
     }
     
-    
+    /**
+     * Gibt Bücher eines Besitzer zurück
+     * @param besitzer
+     * @return collection
+     */
     @Override
     public Collection<BuchExemplar> findByBesitzer(final String besitzer) {
         return asCollection(queryByBesitzer(besitzer));
     }
     
-    
+    /**
+     * Gibt Bücher zurück die von "leiher" ausgeliehen sind
+     * @param leiher
+     * @return collection
+     */
     @Override
     public Collection<BuchExemplar> findByLeiher(final String leiher) {
         return asCollection(queryByLeiher(leiher));
