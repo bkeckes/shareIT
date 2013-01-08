@@ -14,63 +14,98 @@ import edu.hm.hafner.shareit.model.BuchExemplar;
 public interface BuchVerwaltungUsecaseController {
     
     /**
-     * Stellt eine neue Buchbeschreibung zur Verfügung.
-     * 
-     * Wenn schon eine Buchbeschreibung mit den übergebenen Daten
-     * existiert, wird dieser ein weiters Buchexemplar dazugezählt.
-     * 
-     * @param isbn ISBN der Buchbeschreibung
-     * @param author Autor der Buchbeschreibung
-     * @param title Buchtitel
-     * @param emailBesitzer Emailadresse des Besitzers der Buchbeschreibung/-exemplar
-     * @return die ersetellte Buchbeschreibung
+     * Buch wird zur Verfügung gestellt.
+     * Eine Buchbeschreibung wird nur neu angelegt wenn sie noch nicht existiert.
+     *
+     * @param isbn
+     * @param author
+     * @param title
+     * @param emailBesitzer
+     * @return buchExemplar
      */
     BuchExemplar buchZurVerfuegungStellen(String isbn, String author, String title, String emailBesitzer);
-    void zeigeAlleBuecher();
-    BuchBeschreibung getBuchBeschreibung(String isbn);
+    
     /**
-     * Realisiert das Ausleihen eines Buchexemplares.
+     * Buch wird ausgeliehen wenn es gefunden wird, ansonsten wird ein leeres BuchExemplar zurück gegeben
      * 
-     * @param buchbeschreibung Beschreibung für das ausgeliehene Buchexemplar
-     * @param id ID des Buchexemplars
-     * @param ausleiher Leiher des Buchexemplars
-     * @return das ausgeliehene Buchexemplar
+     * @param isbn
+     * @param leiher
+     * @return
      */
-    //BuchExemplar buchAusleihen(BuchBeschreibung buchbeschreibung, int id, Benutzer ausleiher);
     BuchExemplar buchAusleihen(String isbn, String leiher);
-    int buchZaehler();
+    
     /**
-     * Realisiert das Zurückgeben eines Buchexemplars.
+     * Buch wird zurück gegeben
      * 
-     * @param id ID des Buchexemplars
-     * @return true: wenn erfolgreich zurückgegeben
-     *         false: wenn nicht erfolgreich zurückgegeben
+     * @param isbn
+     * @param emailLeiher
+     * @return
      */
-    //boolean buchZurueckgeben(int id);
     BuchExemplar buchZurueckGeben(String isbn, String emailLeiher);
     
     /**
-     * Realisiert das Zurückfordern eines verliehen Buchexemplars.
+     * Buch wird als zurückgefordert markiert.
      * 
-     * @param id ID des Buchexemplars
-     * @return Buchexemplar, welches zurückgefordert wird
+     * @param isbn
+     * @param besitzer
+     * @param leiher
+     * @return exemplar
      */
-    //BuchExemplar buchZurueckfordern(int id);
     BuchExemplar buchZurueckfordern(String isbn, String besitzer, String leiher);
     
     /**
-     * Realisiert das Entfernen eines Buches aus dem System.
+     * Buch wird aus Liste entfernt wenn es nicht ausgeliehen ist
      * 
-     * @param isbn ISBN des Buches
-     * @param besitzer Besitzer des Buches
-     * @return true: wenn das Buch erfolgreich entfernt wurde
-     *         false: wenn das Buch nicht erfolgreich entfernt wurde
+     * @param isbn
+     * @param besitzer
      */
     void buchEntfernen(String isbn, String besitzer);
+    
+    /**
+     * Buch nach Beschreibung suchen.
+     * Es können bei Bedarf auch nur verfügbare Büchern angezeigt werden
+     *
+     * @param beschreibung
+     * @param nurVerfuegbar
+     * @return collection
+     */
     Collection<BuchExemplar> buchSuchen(BuchBeschreibung beschreibung, boolean nurVerfuegbar);
     
+    /**
+     * Eigene Bücher werden auf der Konsole ausgegeben und als Liste zurück gegeben
+     * 
+     * @param besitzer
+     * @return collection
+     */
     Collection<BuchExemplar> eigeneBuecher(String besitzer);
+    
+    /**
+     * Bücher werden angezeigt die man selber leiht.
+     * 
+     * @param leiher
+     * @return collection
+     */
     Collection<BuchExemplar> eigeneLeihe(String leiher);
     
+    /**
+     * Gibt die Buchbeschreibung zu einer ISBN aus
+     * 
+     * @param isbn
+     * @return buchbeschreibung
+     */
+    BuchBeschreibung getBuchBeschreibung(String isbn);
+    
+    /**
+     * Gibt die Anzahl aller Bücher im System aus
+     * 
+     * @return
+     */
+    int buchZaehler();
+    
+    /**
+     * zeigt alle Buecher in der Konsole an
+     * 
+     */
+    void zeigeAlleBuecher();
 }
 

@@ -1,6 +1,7 @@
 package edu.hm.hafner.shareit;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
@@ -44,9 +45,19 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         BuchExemplar exemplar;
         
+        exemplar = verwaltung.buchAusleihen("4421", "asd@we");
         exemplar = verwaltung.buchAusleihen("123", "test@web.de");
         assertEquals("Fehler beim Ausleiher", "test@web.de", exemplar.getLeiherEmail());
         assertEquals("Fehler beim Leiher", "keckes@hm.edu", exemplar.getBesitzerEmail());
+    }
+    
+    public void testeBuchAusleihen2(){
+        testeBuchZurVerfuegungStellen();
+        BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
+        BuchExemplar exemplar;
+        
+        exemplar = verwaltung.buchAusleihen("5567", "test@web.de");
+        
     }
     
     @Test
@@ -56,6 +67,7 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         BuchExemplar exemplar;
         
+        
         exemplar = verwaltung.buchZurueckGeben("123", "test@web.de");
         assertEquals("Fehler beim Ausleiher", null, exemplar.getLeiherEmail());
         assertEquals("Fehler beim Leiher", "keckes@hm.edu", exemplar.getBesitzerEmail());
@@ -63,6 +75,12 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         //zeigeBuecher();
     }
     
+    @Test (expected = NoSuchElementException.class)
+    public void testeBuchZurueckGebenMitFehler(){
+        testeBuchAusleihen();
+        BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
+        BuchExemplar exemplar = verwaltung.buchZurueckGeben("773", "test@web.de");
+    }
     @Test
     public void testeBuchZurueckFordern(){
         
@@ -70,8 +88,6 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         BuchExemplar exemplar = verwaltung.buchZurueckfordern("123", "keckes@hm.edu", "test@web.de");
-        
-        //zeigeBuecher();
         
     }
     
@@ -84,6 +100,22 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         verifyBooks(verwaltung, 4);
         //zeigeBuecher();
     }
+    
+    @Test (expected = NoSuchElementException.class)
+    public void testeBuchLoeschenMitFehler1(){
+        testeBuchZurVerfuegungStellen();
+        BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
+        verwaltung.buchEntfernen("899", "keckes@hm.edu");
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void testeBuchLoeschenMitFehler2(){
+        testeBuchAusleihen2();
+        BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
+        verwaltung.buchEntfernen("5567", "franz@hm.edu");
+    }
+    
+    
     @Test
     public void testeBuchSuchen(){
         testeBuchAusleihen();
@@ -137,7 +169,17 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         assertEquals("Unerwartete Anzahl an Buechern", 1, exemplare.size());
     }
     
-    
+    @Test
+    public void testeAnlegenLoeschenUndAnzeigen(){
+        BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
+        verwaltung.buchZurVerfuegungStellen("111", "A1", "T1", "email1@hm.edu");
+        verwaltung.buchZurVerfuegungStellen("222", "A2", "T2", "email2@hm.edu");
+        verifyBooks(verwaltung, 2);
+        verwaltung.buchEntfernen("111", "email1@hm.edu");
+        verifyBooks(verwaltung, 1);
+        
+        zeigeBuecher();
+    }
     
     private void verifyResults(final Collection<BuchExemplar> ergebnisse, final int expectedNumber){
         assertEquals("Unerwartetes Suchergebnis", expectedNumber, ergebnisse.size());

@@ -12,44 +12,76 @@ import edu.hm.hafner.shareit.model.BuchExemplar;
 public interface BuchExemplarController {
     
     /**
-     * Erzeugt ein neues Buchexemplar.
+     * Erstellt ein BuchExemplar
      * 
-     * @param beschreibung Beschreibung des Buches
-     * @param leiher Leiher des Buchexemplares
-     * @param id ID des Buchexemplares
-     * @return das neue Buchexemplar
+     * @param isbn
+     * @param besitzerEmail
+     * @return BuchExemplar
      */
-    //BuchExemplar create(BuchBeschreibung beschreibung, Benutzer leiher, int id);
-    
     BuchExemplar createExemplar(String isbn, String besitzerEmail);
+    
+    /**
+     * Ein Exemplar wird geliehen
+     * 
+     * @param isbn
+     * @param besitzerEmail
+     * @param leiherEmail
+     * @return BuchExemplar
+     */
     BuchExemplar rentExemplar(String isbn, String besitzerEmail, String leiherEmail);
+    
+    /**
+     * Ein Exemplar wird zurück gegeben
+     * 
+     * @param isbn
+     * @param leiherEmail
+     * @return BuchExemplar
+     */
     BuchExemplar returnExemplar(String isbn, String leiherEmail);
+    
+    /**
+     * Ein Exemplar wird zurück gefordert
+     * 
+     * @param isbn
+     * @param besitzer
+     * @param leiher
+     * @return BuchExemplar
+     */
     BuchExemplar reclaimExemplar(String isbn, String besitzer, String leiher);
-    /**
-     * Liefert alle Buchexemplare zurück.
-     * 
-     * @return die gefundenen Buchexemplare
-     */
-    Collection<BuchExemplar> findBuchExemplare();
     
     /**
-     * Liefert alle Buchexemplare mit der übergebenen ID zurück.
-     * 
-     * @param id ID des gesuchten Buchexemplars
-     * @return die gefunden Buchexemplare
+     * Gibt Bücher über die ISBN zurück
+     * @param isbn
+     * @return collection
      */
-    Collection<BuchExemplar> findById(int id);
     Collection<BuchExemplar> findByIsbn(String isbn);
-    Collection<BuchExemplar> findByBesitzer(String besitzer);
-    Collection<BuchExemplar> findByLeiher(String leiher);
-    /**
-     * Löscht alle Buchexemplare mit der gegebenen ID.
-     * 
-     * @param id ID des zu löschenden Buchexemplars
-     */
-    void delete(int id);
-    void delete(String isbn, String besitzer);
     
+    /**
+     * Gibt Bücher eines Besitzer zurück
+     * @param besitzer
+     * @return collection
+     */
+    Collection<BuchExemplar> findByBesitzer(String besitzer);
+    
+    /**
+     * Gibt Bücher zurück die von "leiher" ausgeliehen sind
+     * @param leiher
+     * @return collection
+     */
+    Collection<BuchExemplar> findByLeiher(String leiher);
+    
+    /**
+     * Löscht ein Buch
+     * 
+     * @param isbn
+     * @param besitzer
+     */
+    void delete(String isbn, String besitzer);
+    /**
+     * Gibt alle Bücher zurück
+     * 
+     * @return collection
+     */
     Collection<BuchExemplar> getAllBooks();
 }
 

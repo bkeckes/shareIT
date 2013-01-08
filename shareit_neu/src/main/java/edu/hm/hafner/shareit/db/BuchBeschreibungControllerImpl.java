@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
@@ -45,44 +44,6 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         return DatabaseFactory.INSTANCE.getDatabase().getCollection("buchbeschreibungen");
     }
     
-    @Override
-    public BuchBeschreibung create(final String isbn, final String title, final String author, final String emailBesitzer) {
-        
-        // Alle Buchbeschreibungen mit der übergebenen ISBN
-        Collection<BuchBeschreibung> existing = findByISBN(isbn);
-        
-        // Wenn es schon eine Buchbeschreibung mit der ISBN gibt
-        if(!existing.isEmpty()) {
-            
-            // Dann wird die Anzahl der Exemplare von der Buchbeschreibung erhöt
-            // und die Besitzer-Email in die Besitzer-Map geschrieben
-            Iterator<BuchBeschreibung> iter = existing.iterator();
-            iter.next().setExemplars(iter.next().getExemplars() + 1);
-            iter.next().getExemplarOwner().put(iter.next().getExemplars(), emailBesitzer);
-            
-            // und die Buchbeschreibung zurückgegeben
-            return iter.next();
-        }
-        
-        // Neue Buchbeschreibung erzeugen und für das erste Buchexemplar
-        // die Besitzer-Email speicher
-        BuchBeschreibung neueBS = new BuchBeschreibung(isbn, title, author);
-        neueBS.getExemplarOwner().put(neueBS.getExemplars(), emailBesitzer);
-        
-        // Neue Buchebschreibung in der Datenbank speichern
-        BasicDBObject buchbeschreibung = new BasicDBObject();
-        buchbeschreibung.append(ISBN, isbn);
-        buchbeschreibung.append(TITLE, title);
-        buchbeschreibung.append(AUTHOR, author);
-        buchbeschreibung.append(EXEMPLAROWNER, neueBS.exemplarOwner);
-        
-        // Die neue Buchbeschreibung in der Buchbeschreibungen-Collection speichern
-        getBuchBeschreibungenCollection().insert(buchbeschreibung);
-        
-        // Rückgabe der neuen Buchbeschreibung
-        return neueBS;
-        
-    }
     
     @Override
     public Collection<BuchBeschreibung> findBuchBeschreibung() {
@@ -94,24 +55,7 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         return asCollection(queryForIsbn(isbn));
     }
     
-    @Override
-    public void delete(final String isbn) {
-        
-        DBCursor cursor = queryForIsbn(isbn);
-        
-        try {
-            
-            if(!cursor.hasNext()) {
-                throw new NoSuchElementException("Keine Buchbeschreibung zu der ISBN: " +isbn+ " gefunden.");
-            }
-            
-            getBuchBeschreibungenCollection().remove(cursor.next());
-        }
-        finally {
-            cursor.close();
-        }
-        
-    }
+    
     
     /**
      * Findet alle Buchbeschreibungen in der Datenbank.

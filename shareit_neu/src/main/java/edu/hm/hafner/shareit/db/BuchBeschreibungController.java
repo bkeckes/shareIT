@@ -12,16 +12,13 @@ import edu.hm.hafner.shareit.model.BuchBeschreibung;
 public interface BuchBeschreibungController {
     
     /**
-     * Stellt ein neues Buch zur Verfügung.
+     * Erstellt eine neue Beschreibung
      * 
-     * @param isbn ISBN des Buches
-     * @param title Buchtitel
-     * @param author Autor des Buches
-     * @param emailBesitzer EMail des Buchexemplarbesitzers
-     * @return die Buchbeschreibung
+     * @param isbn
+     * @param title
+     * @param author
+     * @return beschreibung
      */
-    BuchBeschreibung create(String isbn, String title, String author, String emailBesitzer);
-    
     BuchBeschreibung createBeschreibung(String isbn, String title, String author);
     
     /**
@@ -39,12 +36,5 @@ public interface BuchBeschreibungController {
      */
     Collection<BuchBeschreibung> findByISBN(String isbn);
     Collection<String> findISBNByBuchBeschreibung(BuchBeschreibung beschreibung);
-    
-    /**
-     * Löscht die Buchbeschreibung zur gegebenen ISBN aus der Datenbank.
-     * 
-     * @param isbn ISBN der zu löschenden Buchbeschreibung
-     */
-    void delete(String isbn);
 }
 
