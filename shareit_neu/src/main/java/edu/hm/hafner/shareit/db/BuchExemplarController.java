@@ -22,8 +22,9 @@ public interface BuchExemplarController {
     //BuchExemplar create(BuchBeschreibung beschreibung, Benutzer leiher, int id);
     
     BuchExemplar createExemplar(String isbn, String besitzerEmail);
-    BuchExemplar rentExemplar(String isbn, String besitzerEmail, String leiherEmail, String zurueck);
+    BuchExemplar rentExemplar(String isbn, String besitzerEmail, String leiherEmail);
     BuchExemplar returnExemplar(String isbn, String leiherEmail);
+    BuchExemplar reclaimExemplar(String isbn, String besitzer, String leiher);
     /**
      * Liefert alle Buchexemplare zurück.
      * 
@@ -39,13 +40,15 @@ public interface BuchExemplarController {
      */
     Collection<BuchExemplar> findById(int id);
     Collection<BuchExemplar> findByIsbn(String isbn);
+    Collection<BuchExemplar> findByBesitzer(String besitzer);
+    Collection<BuchExemplar> findByLeiher(String leiher);
     /**
      * Löscht alle Buchexemplare mit der gegebenen ID.
      * 
      * @param id ID des zu löschenden Buchexemplars
      */
     void delete(int id);
-    boolean delete(String isbn, String besitzer);
+    void delete(String isbn, String besitzer);
     
     Collection<BuchExemplar> getAllBooks();
 }

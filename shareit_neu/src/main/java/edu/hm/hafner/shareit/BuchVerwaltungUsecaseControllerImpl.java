@@ -3,11 +3,12 @@ package edu.hm.hafner.shareit;
 import java.util.Collection;
 import java.util.Iterator;
 
+import com.google.common.collect.Lists;
+
 import edu.hm.hafner.shareit.db.BuchBeschreibungController;
 import edu.hm.hafner.shareit.db.BuchBeschreibungControllerImpl;
 import edu.hm.hafner.shareit.db.BuchExemplarController;
 import edu.hm.hafner.shareit.db.BuchExemplarControllerImpl;
-import edu.hm.hafner.shareit.model.Benutzer;
 import edu.hm.hafner.shareit.model.BuchBeschreibung;
 import edu.hm.hafner.shareit.model.BuchExemplar;
 
@@ -60,12 +61,14 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         }
         
     }
+    
     /*
     @Override
     public BuchExemplar buchAusleihen(final BuchBeschreibung buchbeschreibung, final int id, final Benutzer ausleiher) {
         return buchexemplarController.create(buchbeschreibung, ausleiher, id);
     }
      */
+    /*
     @Override
     public boolean buchZurueckgeben(final int id) {
         
@@ -91,7 +94,8 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         
         return true;
     }
-    
+     */
+    /*
     @Override
     public BuchExemplar buchZurueckfordern(final int id) {
         
@@ -100,7 +104,8 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         
         return buchExemplar;
     }
-    
+     */
+    /*
     @Override
     public boolean buchEntfernen(final String isbn, final Benutzer besitzer) {
         
@@ -129,6 +134,7 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         }
         return true;
     }
+     */
     @Override
     public BuchBeschreibung getBuchBeschreibung(final String isbn) {
         
@@ -158,7 +164,7 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         }
         
         
-        return buchexemplarController.rentExemplar(isbn, buch.getBesitzerEmail(), leiher, "nein");
+        return buchexemplarController.rentExemplar(isbn, buch.getBesitzerEmail(), leiher);
     }
     @Override
     public BuchExemplar buchZurueckGeben(final String isbn, final String emailLeiher) {
@@ -177,10 +183,129 @@ public class BuchVerwaltungUsecaseControllerImpl implements BuchVerwaltungUsecas
         return i;
     }
     @Override
-    public BuchExemplar buchZurueckfordern(final String isbn, final String besitzer) {
+    public BuchExemplar buchZurueckfordern(final String isbn, final String besitzer, final String leiher) {
         
         
-        return buchexemplarController.rentExemplar(isbn, besitzer, null, "nein");
+        return buchexemplarController.reclaimExemplar(isbn, besitzer, leiher);//rentExemplar(isbn, besitzer, null, "nein");
+    }
+    @Override
+    public void buchEntfernen(final String isbn, final String besitzer) {
+        
+        //Wenn das Buch nicht verliehen ist wird es gelöscht.
+        buchexemplarController.delete(isbn, besitzer);
+    }
+    
+    
+    @Override
+    public Collection<BuchExemplar> buchSuchen(final BuchBeschreibung beschreibung, final boolean nurVerfuegbar) {
+        
+        Collection<BuchExemplar> collection = Lists.newArrayList();
+        
+        
+        //Wenn eine leere Beschreibung übergeben wird
+        if(beschreibung==null){
+            
+            //Alle Bücher werden geladen
+            collection = buchexemplarController.getAllBooks();
+            
+            //Alle Bücher zurück geben
+            if(!nurVerfuegbar){
+                return collection;
+            }
+            //Nur die Bücher die noch verfügbar sind
+            else{
+                return gibNurVerfuegbareBuecher(collection);
+            }
+        }
+        
+        
+        //Wenn eine beschreibung angegeben ist
+        else{
+            
+            //Wenn keine isbn angegeben ist muss in der Beschreibung nach der isbn gesucht werden
+            if(beschreibung.getIsbn()==null){
+                Collection<String> isbn = beschreibungController.findISBNByBuchBeschreibung(beschreibung);
+                
+                Iterator iter = isbn.iterator();
+                String temp;
+                if(!iter.hasNext()){
+                    throw new IllegalArgumentException("zu dieser Suche gibt es kein Ergebnis");
+                }
+                while(iter.hasNext()){
+                    temp = (String)iter.next();
+                    collection.addAll(buchexemplarController.findByIsbn(temp));
+                }
+            }
+            else{
+                collection = buchexemplarController.findByIsbn(beschreibung.getIsbn());
+            }
+            
+            
+            //Hier wird nach verfügbar oder nicht gefiltert.
+            if(!nurVerfuegbar) {
+                return collection;
+            }
+            else {
+                return gibNurVerfuegbareBuecher(collection);
+            }
+        }
+        
+        
+        
+    }
+    
+    /**
+     * 
+     * Gibt eine Büchercollection zurück mit Büchern die noch nicht ausgeliehen sind
+     * @param collection
+     * @return verfügbareBücher
+     */
+    private Collection<BuchExemplar> gibNurVerfuegbareBuecher(final Collection<BuchExemplar> collection){
+        
+        Collection<BuchExemplar> verfuegbareExemplare = Lists.newArrayList();
+        
+        //verfuegbareExemplare.clear();
+        
+        Iterator<BuchExemplar> iter;
+        BuchExemplar exemplar;
+        
+        
+        if(collection.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        
+        iter = collection.iterator();
+        while(iter.hasNext()){
+            exemplar = iter.next();
+            if(exemplar.getLeiherEmail()==null) {
+                verfuegbareExemplare.add(exemplar);
+            }
+        }
+        return verfuegbareExemplare;
+    }
+    @Override
+    public Collection<BuchExemplar> eigeneBuecher(final String besitzer) {
+        Collection<BuchExemplar> collection = buchexemplarController.findByBesitzer(besitzer);
+        Iterator iter = collection.iterator();
+        
+        while(iter.hasNext()){
+            BuchExemplar b = (BuchExemplar)iter.next();
+            BuchBeschreibung besch = beschreibungController.findByISBN(b.getIsbn()).iterator().next();
+            System.out.println("Buch: "+besch.getTitle()+", "+besch.getAuthor()+" gehört zu: "+b.getBesitzerEmail()+" ausgeliehen von: "+b.getLeiherEmail()+", gefordert: "+b.getZurueckGefordert());
+        }
+        return collection;
+    }
+    @Override
+    public Collection<BuchExemplar> eigeneLeihe(final String leiher) {
+        Collection<BuchExemplar> collection = buchexemplarController.findByLeiher(leiher);
+        Iterator iter = collection.iterator();
+        
+        while(iter.hasNext()){
+            BuchExemplar b = (BuchExemplar)iter.next();
+            BuchBeschreibung besch = beschreibungController.findByISBN(b.getIsbn()).iterator().next();
+            System.out.println("Buch: "+besch.getTitle()+", "+besch.getAuthor()+" gehört zu: "+b.getBesitzerEmail()+" ausgeliehen von: "+b.getLeiherEmail()+", gefordert: "+b.getZurueckGefordert());
+        }
+        return collection;
     }
     
     

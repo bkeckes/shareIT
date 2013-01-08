@@ -1,6 +1,7 @@
 package edu.hm.hafner.shareit.db;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -154,6 +155,21 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         return getBuchBeschreibungenCollection().find(query);
     }
     
+    
+    private DBCursor queryForTitle(final String title){
+        BasicDBObject query = new BasicDBObject();
+        query.append(TITLE, title);
+        
+        return getBuchBeschreibungenCollection().find(query);
+    }
+    
+    private DBCursor queryForAuthor(final String author){
+        BasicDBObject query = new BasicDBObject();
+        query.append(AUTHOR, author);
+        
+        return getBuchBeschreibungenCollection().find(query);
+    }
+    
     @Override
     public BuchBeschreibung createBeschreibung(final String isbn, final String title, final String author) {
         BasicDBObject buchbeschreibung = new BasicDBObject();
@@ -164,6 +180,60 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         // Die neue Buchbeschreibung in der Buchbeschreibungen-Collection speichern
         getBuchBeschreibungenCollection().insert(buchbeschreibung);
         return new BuchBeschreibung(isbn, title, author);
+    }
+    
+    /**
+     * Hier wird anhand der Buchbeschreibung eine Liste der ISBN zurück gegeben.
+     * Da Titel und Autor in verschiedenen Büchern gleich sein können muss es eine Liste sein.
+     * 
+     * Die Beschreibung wird so überprüft:
+     * -wurde eine ISBN angegeben?:
+     *      der Fall ist klar. Einfach ISBN zurück geben
+     * -wurde ein Titel angegeben?:
+     *      Alle ISBN zurück geben die zu diesem Titel gehören
+     * -wurde ein Autor angegeben?:
+     *      Alle ISBN zurück geben die zu diesem Autor gehören
+     * 
+     * @return isbnCollection
+     */
+    @Override
+    public Collection<String> findISBNByBuchBeschreibung(final BuchBeschreibung beschreibung) {
+        
+        Collection<String> isbn = Lists.newArrayList();
+        Collection<BuchBeschreibung> beschList;
+        Iterator iter;
+        
+        //Wenn ISBN angegeben ist (kommt wohl nie vor)
+        if(beschreibung.getIsbn()!=null) {
+            isbn.add(beschreibung.getIsbn());
+            return isbn;
+        }
+        
+        if(beschreibung.getTitle()!=null){
+            beschList = asCollection(queryForTitle(beschreibung.getTitle()));
+            iter = beschList.iterator();
+            if(!iter.hasNext()){
+                throw new IllegalArgumentException("zu diesem Titel wurde keine ISBN gefunden");
+            }
+            while(iter.hasNext()){
+                isbn.add(((BuchBeschreibung)iter.next()).getIsbn());
+            }
+            return isbn;
+        }
+        else if(beschreibung.getAuthor()!=null){
+            beschList = asCollection(queryForAuthor(beschreibung.getAuthor()));
+            
+            iter = beschList.iterator();
+            if(!iter.hasNext()){
+                throw new IllegalArgumentException("zu diesem Autor wurde keine ISBN gefunden");
+            }
+            while(iter.hasNext()){
+                isbn.add(((BuchBeschreibung)iter.next()).getIsbn());
+            }
+            return isbn;
+        }
+        
+        return Collections.emptyList();
     }
 }
 

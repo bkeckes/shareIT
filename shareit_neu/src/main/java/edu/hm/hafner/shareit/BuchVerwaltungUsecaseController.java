@@ -1,6 +1,7 @@
 package edu.hm.hafner.shareit;
 
-import edu.hm.hafner.shareit.model.Benutzer;
+import java.util.Collection;
+
 import edu.hm.hafner.shareit.model.BuchBeschreibung;
 import edu.hm.hafner.shareit.model.BuchExemplar;
 
@@ -45,7 +46,7 @@ public interface BuchVerwaltungUsecaseController {
      * @return true: wenn erfolgreich zurückgegeben
      *         false: wenn nicht erfolgreich zurückgegeben
      */
-    boolean buchZurueckgeben(int id);
+    //boolean buchZurueckgeben(int id);
     BuchExemplar buchZurueckGeben(String isbn, String emailLeiher);
     
     /**
@@ -54,8 +55,8 @@ public interface BuchVerwaltungUsecaseController {
      * @param id ID des Buchexemplars
      * @return Buchexemplar, welches zurückgefordert wird
      */
-    BuchExemplar buchZurueckfordern(int id);
-    BuchExemplar buchZurueckfordern(String isbn, String besitzer);
+    //BuchExemplar buchZurueckfordern(int id);
+    BuchExemplar buchZurueckfordern(String isbn, String besitzer, String leiher);
     
     /**
      * Realisiert das Entfernen eines Buches aus dem System.
@@ -65,6 +66,11 @@ public interface BuchVerwaltungUsecaseController {
      * @return true: wenn das Buch erfolgreich entfernt wurde
      *         false: wenn das Buch nicht erfolgreich entfernt wurde
      */
-    boolean buchEntfernen(String isbn, Benutzer besitzer);
+    void buchEntfernen(String isbn, String besitzer);
+    Collection<BuchExemplar> buchSuchen(BuchBeschreibung beschreibung, boolean nurVerfuegbar);
+    
+    Collection<BuchExemplar> eigeneBuecher(String besitzer);
+    Collection<BuchExemplar> eigeneLeihe(String leiher);
+    
 }
 

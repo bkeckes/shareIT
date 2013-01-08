@@ -38,6 +38,7 @@ public interface BuchBeschreibungController {
      * @return die gefundenen Buchbeschreibungen
      */
     Collection<BuchBeschreibung> findByISBN(String isbn);
+    Collection<String> findISBNByBuchBeschreibung(BuchBeschreibung beschreibung);
     
     /**
      * Löscht die Buchbeschreibung zur gegebenen ISBN aus der Datenbank.

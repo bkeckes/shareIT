@@ -141,7 +141,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
                 String zurueck = (String)dbObject.get(ZURUECKGEFORDERT);
                 
                 boolean gefordert=false;
-                if(zurueck.equals("ja")){
+                if(zurueck.equals(JA)){
                     gefordert = true;
                 }
                 
@@ -177,11 +177,31 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         
         return getBuchExemplareCollection().find(query);
     }
-    
+    private DBCursor queryByBesitzer(final String besitzer){
+        BasicDBObject query = new BasicDBObject();
+        query.append(BESITZER, besitzer);
+        
+        return getBuchExemplareCollection().find(query);
+    }
     private DBCursor queryForExemplarByBesitzer(final String isbn, final String besitzer){
         BasicDBObject query = new BasicDBObject();
         query.append(BESCHREIBUNG, isbn);
         query.append(BESITZER, besitzer);
+        
+        return getBuchExemplareCollection().find(query);
+    }
+    private DBCursor queryForExemplarByBesitzerWithEmptyLeiher(final String isbn, final String besitzer){
+        BasicDBObject query = new BasicDBObject();
+        query.append(BESCHREIBUNG, isbn);
+        query.append(BESITZER, besitzer);
+        query.append(LEIHER, null);
+        
+        return getBuchExemplareCollection().find(query);
+    }
+    
+    private DBCursor queryByLeiher(final String leiher){
+        BasicDBObject query = new BasicDBObject();
+        query.append(LEIHER, leiher);
         
         return getBuchExemplareCollection().find(query);
     }
@@ -207,54 +227,41 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
     
     @Override
     public Collection<BuchExemplar> getAllBooks() {
+        
         return asCollection(getBuchExemplareCollection().find());
+        
     }
     
     @Override
     public Collection<BuchExemplar> findByIsbn(final String isbn) {
-        
-        return asCollection(queryForIsbn(isbn));
-    }
-    
-    @Override
-    public BuchExemplar rentExemplar(final String isbn, final String besitzerEmail, final String leiherEmail, final String zurueck) {
-        
-        //neues Objekt
-        BasicDBObject buchExemplar = new BasicDBObject();
-        buchExemplar.append(BESCHREIBUNG, isbn);
-        buchExemplar.append(BESITZER, besitzerEmail);
-        buchExemplar.append(LEIHER, leiherEmail);
-        buchExemplar.append(ZURUECKGEFORDERT, zurueck);
-        
-        boolean gefordert=false;
-        if(zurueck.equals("ja")) {
-            gefordert=true;
+        Collection<BuchExemplar> collection = asCollection(queryForIsbn(isbn));
+        if(collection.isEmpty()) {
+            throw new NoSuchElementException("Zu der ISBN: "+isbn+" wurde nichts in der DB gefunden");
         }
-        
-        //zu ersetzendes
-        BasicDBObject query = new BasicDBObject();
-        query.append(BESCHREIBUNG, isbn);
-        query.append(BESITZER, besitzerEmail);
-        
-        
-        getBuchExemplareCollection().update(query, buchExemplar);
-        return new BuchExemplar(isbn, besitzerEmail, leiherEmail, gefordert);
+        return collection;
     }
     
+    
+    
+    
     @Override
-    public boolean delete(final String isbn, final String besitzer) {
+    public void delete(final String isbn, final String besitzer) {
+        
+        //Betreffende Bücher werden geholt
         DBCursor cursor = queryForExemplarByBesitzer(isbn, besitzer);
+        if(!cursor.hasNext()) {
+            throw new NoSuchElementException("Kein Buch mit dieser ISBN: "+isbn+" von "+besitzer+" gefunden");
+        }
         
-        try {
-            if(!cursor.hasNext()) {
-                throw new NoSuchElementException("Kein Buch mit dieser ISBN: "+isbn+" von "+besitzer+" gefunden");
-            }
-            getBuchExemplareCollection().remove(cursor.next());
+        //Betreffende Bücher die keinen Leiher haben werden geholt.
+        cursor = queryForExemplarByBesitzerWithEmptyLeiher(isbn, besitzer);
+        if(!cursor.hasNext()) {
+            throw new NoSuchElementException("Das Buch kann nicht geloscht werden da es im Moment ausgeliehen ist");
         }
-        finally {
-            cursor.close();
-        }
-        return true;
+        
+        //Wenn das Buch nicht ausgeliehen ist wird es gelöscht
+        getBuchExemplareCollection().remove(cursor.next());
+        
     }
     
     @Override
@@ -282,6 +289,64 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         getBuchExemplareCollection().update(query, buchExemplar);
         return new BuchExemplar(isbn, besitzer, null);
     }
+    
+    @Override
+    public BuchExemplar rentExemplar(final String isbn, final String besitzerEmail, final String leiherEmail) {
+        
+        //neues Objekt
+        BasicDBObject buchExemplar = new BasicDBObject();
+        buchExemplar.append(BESCHREIBUNG, isbn);
+        buchExemplar.append(BESITZER, besitzerEmail);
+        buchExemplar.append(LEIHER, leiherEmail);
+        buchExemplar.append(ZURUECKGEFORDERT, NEIN);
+        
+        
+        //zu ersetzendes
+        BasicDBObject query = new BasicDBObject();
+        query.append(BESCHREIBUNG, isbn);
+        query.append(BESITZER, besitzerEmail);
+        
+        
+        getBuchExemplareCollection().update(query, buchExemplar);
+        return new BuchExemplar(isbn, besitzerEmail, leiherEmail);
+    }
+    
+    @Override
+    public BuchExemplar reclaimExemplar(final String isbn, final String besitzer, final String leiher) {
+        
+        //neues Objekt
+        BasicDBObject buchExemplar = new BasicDBObject();
+        buchExemplar.append(BESCHREIBUNG, isbn);
+        buchExemplar.append(BESITZER, besitzer);
+        buchExemplar.append(LEIHER, leiher);
+        buchExemplar.append(ZURUECKGEFORDERT, JA);
+        
+        //zu ersetzendes
+        BasicDBObject query = new BasicDBObject();
+        query.append(BESCHREIBUNG, isbn);
+        query.append(BESITZER, besitzer);
+        query.append(LEIHER, leiher);
+        query.append(ZURUECKGEFORDERT, NEIN);
+        
+        getBuchExemplareCollection().update(query, buchExemplar);
+        
+        return new BuchExemplar(isbn, besitzer, leiher, true);
+    }
+    
+    
+    @Override
+    public Collection<BuchExemplar> findByBesitzer(final String besitzer) {
+        return asCollection(queryByBesitzer(besitzer));
+    }
+    
+    
+    @Override
+    public Collection<BuchExemplar> findByLeiher(final String leiher) {
+        return asCollection(queryByLeiher(leiher));
+    }
+    
+    
+    
     
 }
 
