@@ -11,10 +11,17 @@ import edu.hm.hafner.shareit.model.BuchExemplar;
 import edu.hm.hafner.shareit.util.AbstractDatabaseTest;
 
 /**
- * TODO: Document type BuchVerwaltungUsecaseControllerImplTest.
+ * BuchVerwaltungUsecaseControllerImplTest.
+ * Testet verschiedene UseCases die mit der Buchverwaltung vor kommen.
+ * 
+ * @author Benjamin Keckes
  */
 public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTest{
     
+    /**
+     * legt ein paar Bücher an.
+     * 
+     */
     @Test
     public void testeBuchZurVerfuegungStellen(){
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
@@ -35,31 +42,38 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         assertEquals("Falscher Autor", "Dan Brown", verwaltung.getBuchBeschreibung(exemplar.getIsbn()).getAuthor());
         assertEquals("Fehler beim Ausleiher", null, exemplar.getLeiherEmail());
         
-        
-        
     }
     
+    /**
+     * 
+     * leiht ein Buch aus.
+     */
     @Test
     public void testeBuchAusleihen(){
         testeBuchZurVerfuegungStellen();
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         BuchExemplar exemplar;
         
-        exemplar = verwaltung.buchAusleihen("4421", "asd@we");
+        //exemplar = verwaltung.buchAusleihen("4421", "asd@we");
         exemplar = verwaltung.buchAusleihen("123", "test@web.de");
         assertEquals("Fehler beim Ausleiher", "test@web.de", exemplar.getLeiherEmail());
         assertEquals("Fehler beim Leiher", "keckes@hm.edu", exemplar.getBesitzerEmail());
     }
     
+    /**
+     * 
+     * leiht in anderes Buch aus.
+     */
     public void testeBuchAusleihen2(){
         testeBuchZurVerfuegungStellen();
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
-        BuchExemplar exemplar;
-        
-        exemplar = verwaltung.buchAusleihen("5567", "test@web.de");
-        
+        verwaltung.buchAusleihen("5567", "test@web.de");
     }
     
+    /**
+     * 
+     * gibt ein Buch zurück.
+     */
     @Test
     public void testeBuchZurueckGeben(){
         
@@ -75,22 +89,35 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         //zeigeBuecher();
     }
     
+    /**
+     * 
+     * gibt ein Buch zurück das es nicht gibt. Erwartet Fehler.
+     */
     @Test (expected = NoSuchElementException.class)
     public void testeBuchZurueckGebenMitFehler(){
         testeBuchAusleihen();
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
-        BuchExemplar exemplar = verwaltung.buchZurueckGeben("773", "test@web.de");
+        verwaltung.buchZurueckGeben("773", "test@web.de");
     }
+    
+    /**
+     * 
+     * Fordert ein ausgeliehenes Buch zurück.
+     */
     @Test
     public void testeBuchZurueckFordern(){
         
         testeBuchAusleihen();
         
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
-        BuchExemplar exemplar = verwaltung.buchZurueckfordern("123", "keckes@hm.edu", "test@web.de");
+        verwaltung.buchZurueckfordern("123", "keckes@hm.edu", "test@web.de");
         
     }
     
+    /**
+     * 
+     * löscht ein Buch
+     */
     @Test
     public void testeBuchLoeschen(){
         testeBuchAusleihen();
@@ -101,6 +128,10 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         //zeigeBuecher();
     }
     
+    /**
+     * 
+     * löscht ein Buch das es nicht gibt. Erwartet Fehler.
+     */
     @Test (expected = NoSuchElementException.class)
     public void testeBuchLoeschenMitFehler1(){
         testeBuchZurVerfuegungStellen();
@@ -108,6 +139,10 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         verwaltung.buchEntfernen("899", "keckes@hm.edu");
     }
     
+    /**
+     * 
+     * löscht ein Buch das ausgeliehen ist. Erwartet Fehler.
+     */
     @Test (expected = IllegalStateException.class)
     public void testeBuchLoeschenMitFehler2(){
         testeBuchAusleihen2();
@@ -115,7 +150,10 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         verwaltung.buchEntfernen("5567", "franz@hm.edu");
     }
     
-    
+    /**
+     * 
+     * sucht ein Buch mit verschiedenen Kriterien.
+     */
     @Test
     public void testeBuchSuchen(){
         testeBuchAusleihen();
@@ -153,6 +191,10 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         
     }
     
+    /**
+     * 
+     * eigene Bücher sollen ausgegeben werden.
+     */
     @Test
     public void testeEigeneBuecherAnzeigen(){
         testeBuchAusleihen();
@@ -161,6 +203,10 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         assertEquals("Unerwartete Anzahl an Buechern", 3, exemplare.size());
     }
     
+    /**
+     * 
+     * Bücher die man selber ausgeliehen hat sollen angezeigt werden.
+     */
     @Test
     public void testeEigeneAusleihe(){
         testeBuchAusleihen();
@@ -169,6 +215,10 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         assertEquals("Unerwartete Anzahl an Buechern", 1, exemplare.size());
     }
     
+    /**
+     * 
+     * legt Bücher an, löscht eins und zeigt danach alle Bücher an.
+     */
     @Test
     public void testeAnlegenLoeschenUndAnzeigen(){
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
@@ -181,14 +231,31 @@ public class BuchVerwaltungUsecaseControllerImplTest extends AbstractDatabaseTes
         zeigeBuecher();
     }
     
+    /**
+     * 
+     * Überprüft die Anzahl der Suchergebnisse.
+     * @param ergebnisse
+     * @param expectedNumber
+     */
     private void verifyResults(final Collection<BuchExemplar> ergebnisse, final int expectedNumber){
         assertEquals("Unerwartetes Suchergebnis", expectedNumber, ergebnisse.size());
     }
+    
+    /**
+     * 
+     * zeigt alle Bücher aus der DB an.
+     */
     private void zeigeBuecher(){
         BuchVerwaltungUsecaseController verwaltung = new BuchVerwaltungUsecaseControllerImpl();
         verwaltung.zeigeAlleBuecher();
     }
     
+    /**
+     * 
+     * Überprüft die Anzahl der gespeicherten Bücher.
+     * @param verwaltung
+     * @param expectedNumber
+     */
     private void verifyBooks(final BuchVerwaltungUsecaseController verwaltung, final int expectedNumber){
         assertEquals("Falsche Anzahl an Buechern", expectedNumber, verwaltung.buchZaehler());
     }

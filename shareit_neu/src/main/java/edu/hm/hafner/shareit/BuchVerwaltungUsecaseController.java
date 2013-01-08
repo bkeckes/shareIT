@@ -30,7 +30,7 @@ public interface BuchVerwaltungUsecaseController {
      * 
      * @param isbn
      * @param leiher
-     * @return
+     * @return exemplar
      */
     BuchExemplar buchAusleihen(String isbn, String leiher);
     
@@ -39,7 +39,7 @@ public interface BuchVerwaltungUsecaseController {
      * 
      * @param isbn
      * @param emailLeiher
-     * @return
+     * @return exemplar
      */
     BuchExemplar buchZurueckGeben(String isbn, String emailLeiher);
     
@@ -98,7 +98,7 @@ public interface BuchVerwaltungUsecaseController {
     /**
      * Gibt die Anzahl aller Bücher im System aus
      * 
-     * @return
+     * @return count
      */
     int buchZaehler();
     

@@ -32,9 +32,6 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
     /** Autor der Buchbeschreibung */
     private static final String AUTHOR = "author";
     
-    /** Besitzer der jeweiligen Buchexemplare */
-    private static final String EXEMPLAROWNER = "exemplarOwner";
-    
     /**
      * Liefert alle Buchbeschreibungen.
      * 
@@ -44,12 +41,12 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         return DatabaseFactory.INSTANCE.getDatabase().getCollection("buchbeschreibungen");
     }
     
-    
-    @Override
-    public Collection<BuchBeschreibung> findBuchBeschreibung() {
-        return asCollection(getBuchBeschreibungenCollection().find());
-    }
-    
+    /**
+     * Liefert alle Buchbeschreibungen mit der übergebenen ISBN zurück.
+     * 
+     * @param isbn die zu findende ISBN
+     * @return die gefundenen Buchbeschreibungen
+     */
     @Override
     public Collection<BuchBeschreibung> findByISBN(final String isbn) {
         return asCollection(queryForIsbn(isbn));
@@ -84,35 +81,7 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         }
     }
     
-    /**
-     * Gibt eine Datenbank-Collection mit den Buchbeschreibungen,
-     * welche zur übergebenen ISBN passen, zurück.
-     * 
-     * @param isbn ISBN der gesuchten Buchbeschreibung
-     * @return Datenbank-Collection
-     */
-    private DBCursor queryForIsbn(final String isbn) {
-        
-        BasicDBObject query = new BasicDBObject();
-        query.append(ISBN, isbn);
-        
-        return getBuchBeschreibungenCollection().find(query);
-    }
     
-    
-    private DBCursor queryForTitle(final String title){
-        BasicDBObject query = new BasicDBObject();
-        query.append(TITLE, title);
-        
-        return getBuchBeschreibungenCollection().find(query);
-    }
-    
-    private DBCursor queryForAuthor(final String author){
-        BasicDBObject query = new BasicDBObject();
-        query.append(AUTHOR, author);
-        
-        return getBuchBeschreibungenCollection().find(query);
-    }
     
     @Override
     public BuchBeschreibung createBeschreibung(final String isbn, final String title, final String author) {
@@ -145,7 +114,7 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
         
         Collection<String> isbn = Lists.newArrayList();
         Collection<BuchBeschreibung> beschList;
-        Iterator iter;
+        Iterator<BuchBeschreibung> iter;
         
         //Wenn ISBN angegeben ist (kommt wohl nie vor)
         if(beschreibung.getIsbn()!=null) {
@@ -160,7 +129,7 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
                 throw new IllegalArgumentException("zu diesem Titel wurde keine ISBN gefunden");
             }
             while(iter.hasNext()){
-                isbn.add(((BuchBeschreibung)iter.next()).getIsbn());
+                isbn.add(iter.next().getIsbn());
             }
             return isbn;
         }
@@ -172,12 +141,53 @@ public class BuchBeschreibungControllerImpl implements BuchBeschreibungControlle
                 throw new IllegalArgumentException("zu diesem Autor wurde keine ISBN gefunden");
             }
             while(iter.hasNext()){
-                isbn.add(((BuchBeschreibung)iter.next()).getIsbn());
+                isbn.add(iter.next().getIsbn());
             }
             return isbn;
         }
         
         return Collections.emptyList();
+    }
+    
+    /**
+     * Gibt eine Datenbank-Collection mit den Buchbeschreibungen,
+     * welche zur übergebenen ISBN passen, zurück.
+     * 
+     * @param isbn ISBN der gesuchten Buchbeschreibung
+     * @return Datenbank-Collection
+     */
+    private DBCursor queryForIsbn(final String isbn) {
+        
+        BasicDBObject query = new BasicDBObject();
+        query.append(ISBN, isbn);
+        
+        return getBuchBeschreibungenCollection().find(query);
+    }
+    
+    /**
+     * 
+     * queryForTitle
+     * @param title
+     * @return cursor
+     */
+    private DBCursor queryForTitle(final String title){
+        BasicDBObject query = new BasicDBObject();
+        query.append(TITLE, title);
+        
+        return getBuchBeschreibungenCollection().find(query);
+    }
+    
+    /**
+     * 
+     * queryForAuthor
+     * @param author
+     * @return cursor
+     */
+    private DBCursor queryForAuthor(final String author){
+        BasicDBObject query = new BasicDBObject();
+        query.append(AUTHOR, author);
+        
+        return getBuchBeschreibungenCollection().find(query);
     }
 }
 

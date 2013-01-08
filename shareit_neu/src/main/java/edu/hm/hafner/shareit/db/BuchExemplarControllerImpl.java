@@ -94,7 +94,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         buchExemplar.append(ZURUECKGEFORDERT, "nein");
         
         getBuchExemplareCollection().insert(buchExemplar);
-        return new BuchExemplar(isbn, besitzerEmail, null);
+        return new BuchExemplar(isbn, besitzerEmail, null, false);
     }
     
     /**
@@ -166,7 +166,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         
         
         getBuchExemplareCollection().update(query, buchExemplar);
-        return new BuchExemplar(isbn, besitzer, null);
+        return new BuchExemplar(isbn, besitzer, null, false);
     }
     
     @Override
@@ -187,7 +187,7 @@ public class BuchExemplarControllerImpl implements BuchExemplarController {
         
         
         getBuchExemplareCollection().update(query, buchExemplar);
-        return new BuchExemplar(isbn, besitzerEmail, leiherEmail);
+        return new BuchExemplar(isbn, besitzerEmail, leiherEmail, false);
     }
     
     @Override

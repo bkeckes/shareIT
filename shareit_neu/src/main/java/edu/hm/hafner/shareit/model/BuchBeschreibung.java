@@ -1,12 +1,10 @@
 package edu.hm.hafner.shareit.model;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Repräsentiert die Beschreibung eines Buches.
  * 
- * @author Cookie
+ * @author Keckes, Kuchenbecker
  */
 public class BuchBeschreibung {
     
@@ -21,12 +19,6 @@ public class BuchBeschreibung {
     /** Repräsentiert den Autor des Buches */
     private final String author;
     
-    /** Repräsentier die Anzahl der verfügbaren Buch-Exemplare */
-    private int exemplars;
-    
-    /** Repräsentiert die Besitzer der jeweiligen Exemplare */
-    public Map<Integer, String> exemplarOwner = new HashMap<Integer, String>();
-    
     /**
      * Konstruktor, erzeugt eine Buchbeschreibung.
      * 
@@ -40,19 +32,6 @@ public class BuchBeschreibung {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
-        
-        // Wenn eine neue Buchbeschreibung erzeugt wird, gibt es mindestens
-        // einen Buchexemplar-Besitzer
-        exemplars = 1;
-    }
-    
-    /**
-     * Returns the exemplarOwner.
-     * 
-     * @return the exemplarOwner
-     */
-    public Map<Integer, String> getExemplarOwner() {
-        return exemplarOwner;
     }
     
     /**
@@ -80,24 +59,6 @@ public class BuchBeschreibung {
      */
     public String getAuthor() {
         return author;
-    }
-    
-    /**
-     * Returns the exemplars.
-     * 
-     * @return the exemplars
-     */
-    public int getExemplars() {
-        return exemplars;
-    }
-    
-    /**
-     * Sets the exemplars to the specified value.
-     * 
-     * @param exemplars the value to set
-     */
-    public void setExemplars(final int exemplars) {
-        this.exemplars = exemplars;
     }
 }
 
